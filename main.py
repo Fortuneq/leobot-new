@@ -9,7 +9,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 import pymysql
 pymysql.install_as_MySQLdb()
 
-# Установите параметры подключения к базе данных
+# Set the database connection parameters
 host = '31.31.196.165'
 port = 3306
 username = 'u2333338_root'
@@ -17,10 +17,10 @@ password = 'Y3S4G9taZvwsYtU2@'
 database = 'u2333338_some'
 
 conn = pymysql.connect(host=host, user=username, password=password, db=database)
-# Соединение с базой данных
+# Database connection
 
 
-# Создаем объекты бота и диспетчера
+# Create the bot and dispatcher objects
 bot = Bot(token="6893517321:AAFdChT70-yFPIpBejKo_cpnJUwwRxsaSx4")
 dp = Dispatcher(bot, storage=aiogram.contrib.fsm_storage.memory.MemoryStorage())
 
@@ -44,7 +44,7 @@ class DeviceDelete(StatesGroup):
     id = State()
 
 
-# Обработчик команды /start
+# Command handler /start
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
@@ -56,7 +56,7 @@ async def start(message: types.Message):
     await message.answer("Выберите действие:", reply_markup=keyboard)
 
 
-# Обработчик кнопки "Добавить девайс"
+# Handler for the "Add device"
 @dp.callback_query_handler(text='add_device')
 async def add_device(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
@@ -156,11 +156,11 @@ async def process_hashing(message: types.Message, state: FSMContext):
         cursor.execute(sql)
         coins = cursor.fetchall()
         print(coins)
-        # Проверка наличия монет
+        # Check that the user has coins
         if len(coins) == 0:
             await message.reply('Монеты не найдены. Пожалуйста, создайте монеты.')
             return
-        # Переход к следующему состоянию
+        # Move to the next state
         await message.reply(coins)
 
     DeviceInput.coin.set()
@@ -176,19 +176,19 @@ async def process_coin(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=DeviceInput.image,
-                    content_types=types.ContentTypes.PHOTO)  # Укажите content_types для ограничения типов загружаемого содержимого
+                    content_types=types.ContentTypes.PHOTO)  # Set content_types to restrict the types of uploaded content
 async def process_image(message: types.Message, state: FSMContext):
-    # Сохраните изображение во временный файл
-    photo = message.photo[-1]  # Выберите самое большое изображение из отправленных
-    photo_path = f"{photo.file_id}.jpg"  # Задайте путь для сохранения файла
-    await photo.download(photo_path)  # Сохраните изображение в файл
+    # Save the image to a temporary file
+    photo = message.photo[-1]  # Pick the largest of the sent images
+    photo_path = f"{photo.file_id}.jpg"  # Set the path for saving the file
+    await photo.download(photo_path)  # Save the image to the file
 
-    # Прочитайте изображение из файла и преобразуйте его в базовую строку
+    # Read the image from the file and convert it to a base64 string
     with open(photo_path, "rb") as file:
         image_data = file.read()
         base64_data = base64.b64encode(image_data).decode("utf-8")
 
-    # Удалите временный файл
+    # Delete the temporary file
     os.remove(photo_path)
 
     async with state.proxy() as data:
@@ -212,7 +212,7 @@ async def process_offer_type(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['offer_type'] = message.text
 
-    # Здесь вы можете продолжить с дополнительными шагами обработки данных
+    # Additional data processing steps can go here
 
     await message.reply('Ввод данных завершен!')
     print(data['image'])
@@ -230,7 +230,7 @@ async def process_offer_type(message: types.Message, state: FSMContext):
 #         conn.close()
 
 
-# Запуск бота
+# Start the bot
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     try:
